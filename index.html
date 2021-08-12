@@ -4,7 +4,7 @@
     <title>Improving Precision and Power in Randomized Trials for COVID-19 Treatments Using Covariate Adjustment, for Binary, Ordinal, or Time to Event Outcomes</title>
     <meta charset="utf-8" />
     <meta name="author" content="David Benkeser, PhD MPH    Emory University  Department of Biostatistics and Bioinformatics " />
-    <script src="index_files/header-attrs-2.6/header-attrs.js"></script>
+    <script src="index_files/header-attrs-2.7/header-attrs.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
@@ -35,9 +35,9 @@ Joint work with:
 * Jodi Segal and Michael Rosenblum (JHU)
 
 Benkeser, D., Díaz, I., Luedtke, A., Segal, J., Scharfstein, D., and Rosenblum, M. 
-(In Press) Improving Precision and Power in Randomized Trials for COVID-19 Treatments Using Covariate Adjustment, for Binary, Ordinal, or Time to Event Outcomes. *Biometrics*. doi: [10.1111/biom.13377](https://doi.org/10.1111/biom.13377)
+Improving Precision and Power in Randomized Trials for COVID-19 Treatments Using Covariate Adjustment, for Binary, Ordinal, or Time to Event Outcomes. *Biometrics*. doi: [10.1111/biom.13377](https://doi.org/10.1111/biom.13377)
 
-Slides based on talk given by M. Rosenblum at SCT2020.
+Slides based on talk given by M. Rosenblum at SCT2020, D. Benkeser at ENAR2021.
 
 ---
 
@@ -61,12 +61,12 @@ __Covariate adjustment in randomized trial:__
 * Preplanned adjustment for baseline variables when estimating average or conditional treatment effect in primary efficacy analysis.
 * Reduce required sample size to achieve desired power.
 
-.red[Covariate adjustment often misunderstood and underutilized]
+.red[Covariate adjustment often misunderstood and underutilized.]
 
 Our goals:
-* Describe estimands, covariate-adjusted estimators, and implementation in R packages for these outcome types.
+* Describe common marginal estimands, covariate-adjusted estimators, and implementation in R packages for these outcome types.
 * Use simulations based on real data to demonstrate impact of covariate adjustment in hypothetical COVID-19 trials.
-* Practical recommendations for implementation
+* Provide practical recommendations for implementation.
 
 ---
 
@@ -118,7 +118,7 @@ __FDA Guidance on COVID-19 treatment and prevention trials (2020)__
 
 ## Related work
 
-__Many__ statisticians have been singing praise of covariate adjustment.
+__Many__ statisticians have sung the praises of covariate adjustment.
 
 [Yang and Tsiatis, 2001](https://doi.org/10.1198/000313001753272466); [Zhang et al. 2008](https://doi.org/10.1111/j.1541-0420.2007.00976.x); [Tsiatis et al. 2008](10.1002/sim.3113); [Rubin and van der Laan, 2008](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2669310/); [Zhang and Gilbert 2010](https://doi.org/10.2202/1948-4690.1002); [Moore et al. 2011](https://doi.org/10.1002/sim.4301); [Tian et al. 2012](https://doi.org/10.1093/biostatistics/kxr050); [Zhang 2014](https://doi.org/10.1007/s10985-014-9291-y); [Zheng et al. 2015](https://biostats.bepress.com/ucbbiostat/paper339/); [Vermuelen et al. 2015](https://doi.org/10.1002/sim.6386); 
 [Wager et al. 2016](https://doi.org/10.1073/pnas.1614732113); [Zhang and Ma, 2019](https://doi.org/10.1002/sim.8054); [Jiang et al. 2019](https://doi.org/10.1080/01621459.2018.1527226).
@@ -155,7 +155,22 @@ __Survival outcomes:__
 
 ## Estimands
 
-Because treatment is .green[randomized], these effects can be estimated using .green[simple estimators].
+Some prefer __conditional treatment effects__ -- contrasts between outcome distributions in subgroups comparing treatment to control.
+
+* Generally, .red[assume treatment effect is constant] across subgroups.
+* See [discussion here](https://www.fharrell.com/post/ipp/).
+
+Reasons why we focused on __marginal estimands__:
+
+* The most common estimand in many COVID contexts (treatment trials, vaccines).
+* Easy to ignore covariates when estimating marginal estimands.
+* Model-free estimand, flexible modeling of effects with stable inference.
+
+---
+
+## Estimands
+
+Because treatment is .green[randomized], marginal effects can be estimated using .green[simple estimators].
 
 * E.g., sample proportions/means, Mann-Whitney U statistic, Kaplan-Meier
 
@@ -172,10 +187,10 @@ We present a covariate-adjusted estimator of each estimand that leverages progno
 
 Patient data re-sampled with replacement from 500 patients hospitalized at Weill Cornell Medicine New York Presbyterian Hospital.
 
-* Simulated sample sizes n = 100, 200, 500, and 1000. 
-* Hypothetical treatment variable drawn independent of all other data
-* To simulate positive treatment effect: add independent draw from a `\(\chi^2\)` with 4 d.f. to each treatment arm participant's outcome
-* Censoring: 5% censored completely at random; censoring time from uniform distribution on 1,...,14.
+* Simulated __sample sizes__ n = 100, 200, 500, and 1000. 
+* Hypothetical __treatment variable__ drawn independent of all other data
+* To simulate positive __treatment effect__: add independent draw from a `\(\chi^2\)` with 4 d.f. to each treatment arm participant's outcome
+* __Censoring__: 5% censored completely at random; censoring time from uniform distribution on 1,...,14.
 
 ---
 
@@ -183,12 +198,12 @@ Patient data re-sampled with replacement from 500 patients hospitalized at Weill
 
 Patient data distribution mimicks distribution from hospitalized, COVID-19 positive patients in [CDC MMWR](https://www.cdc.gov/mmwr/volumes/69/wr/mm6912e2.htm). 
 
-* Ordinal outcome: 1=death; 2=survival with ICU admission; 3=survival without ICU admission. 
-* Baseline variable: Age category.
-* Simulated sample sizes n = 100, 200, 500, and 1000. 
-* Hypothetical treatment variable drawn independent of all other data.
-* Simulated treatment impacted ICU admission, but not death.
-* No censoring (though methods can handle)
+* __Ordinal outcome__: 1=death; 2=survival with ICU admission; 3=survival without ICU admission. 
+* __Baseline variable__: Age category.
+* Simulated __sample sizes__ n = 100, 200, 500, and 1000. 
+* Hypothetical __treatment variable__ drawn independent of all other data.
+* Simulated treatment __impacted ICU admission__, but not death.
+* __No censoring__ (though methods can handle)
 
 ---
 background-color: #012169
