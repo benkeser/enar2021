@@ -76,7 +76,8 @@ Our goals:
 * .green[Substantial precision gains] from using covariate adjustment.
 * Equivalent to .green[4-18% reductions in required sample size] to achieve a desired power.
 * Results shown for .green[a variety of estimands and sample sizes].
-* We provide an R package and practical recommendations for implementing covariate adjustment. 
+* We provide an R package and practical recommendations for implementing covariate adjustment.
+* Excellent discussion from [Proschan](https://onlinelibrary.wiley.com/doi/full/10.1111/biom.13493), [LaVange](https://onlinelibrary.wiley.com/doi/full/10.1111/biom.13494), [Zhang and Zhang](https://onlinelibrary.wiley.com/doi/full/10.1111/biom.13492).
 
 ---
 
@@ -193,9 +194,9 @@ For example, suppose the trial enrolls `\(n\)` patients on whom we measure:
 
 1\. Fit a .green[covariate-conditional working model] for outcome distribution.
 
-E.g., logistic regression model: `$$\hat{P}(Y = 1 | A = a, W = w) = \mbox{logit}^{-1}(\hat{\beta_0} + \hat{\beta_1} a + \hat{\beta_2} w) \ .$$`
+E.g., logistic regression model: `$$\hat{P}(Y = 1 \ | \ A = a, W = w) = \mbox{logit}^{-1}(\hat{\beta_0} + \hat{\beta_1} a + \hat{\beta_2} w) \ .$$`
 
-The implied treatment-specific conditional distribution estimates are `$$\begin{align} \hat{P}(Y = 1 | A = 1, W = w) &amp;= \mbox{logit}^{-1}(\hat{\beta_0} + \hat{\beta_1} + \hat{\beta_2} W) \\ \hat{P}(Y = 1 | A = 0, W = w) &amp;= \mbox{logit}^{-1}(\hat{\beta_0}  + \hat{\beta_2} W)\end{align}$$`
+The implied treatment-specific conditional distribution estimates are `$$\begin{align} \hat{P}(Y = 1 \ | \ A = 1, W = w) &amp;= \mbox{logit}^{-1}(\hat{\beta_0} + \hat{\beta_1} + \hat{\beta_2} W) \\ \hat{P}(Y = 1 \ | \ A = 0, W = w) &amp;= \mbox{logit}^{-1}(\hat{\beta_0}  + \hat{\beta_2} W)\end{align}$$`
 
 ---
 
@@ -204,10 +205,10 @@ The implied treatment-specific conditional distribution estimates are `$$\begin{
 2\. Use empirical covariate distribution to .green[marginalize the estimated treatment-specific distribution].
 
 Marginalized estimate for treatment-specific distribution:
-`$$\begin{align}\hat{p}_1 &amp;= \hat{E}\{\hat{P}(Y = 1 | A = 1, W)\} \\ &amp;= \frac{1}{n}\sum_{i=1}^n \mbox{logit}^{-1}(\hat{\beta_0} + \hat{\beta_1} + \hat{\beta_2} W_i)\end{align}$$`
+`$$\begin{align}\hat{p}_1 &amp;= \hat{E}\{\hat{P}(Y = 1 \ | \ A = 1, W)\} \\ &amp;= \frac{1}{n}\sum_{i=1}^n \mbox{logit}^{-1}(\hat{\beta_0} + \hat{\beta_1} + \hat{\beta_2} W_i)\end{align}$$`
 
 Marginalized estimate for control-specific distribution:
-`$$\begin{align} \hat{p}_0 &amp;= \hat{E}\{\hat{P}(Y = 1 | A = 0, W)\} \\ &amp;= \frac{1}{n}\sum_{i=1}^n \mbox{logit}^{-1}(\hat{\beta_0} + \hat{\beta_2} W_i) \end{align}$$`
+`$$\begin{align} \hat{p}_0 &amp;= \hat{E}\{\hat{P}(Y = 1 \ | \ A = 0, W)\} \\ &amp;= \frac{1}{n}\sum_{i=1}^n \mbox{logit}^{-1}(\hat{\beta_0} + \hat{\beta_2} W_i) \end{align}$$`
 
 ---
 
@@ -233,9 +234,9 @@ For example, consider as before a trial that enrolls `\(n\)` patients with covar
 
 1\. Fit&lt;sup&gt;\*&lt;/sup&gt; a .green[covariate-conditional working model] for outcome distribution.
 
-E.g., proportional odds model. For `\(j = 1, \dots, K-1\)`, `$$\hat{P}(Y \le j | A = a, W = w) = \mbox{logit}^{-1}(\hat{\alpha_j} + \hat{\beta_1} a + \hat{\beta_2} w) \ .$$`
+E.g., proportional odds model. For `\(j = 1, \dots, K-1\)`, `$$\hat{P}(Y \le j \ | \ A = a, W = w) = \mbox{logit}^{-1}(\hat{\alpha_j} + \hat{\beta_1} a + \hat{\beta_2} w) \ .$$`
 
-The implied treatment-specific conditional distribution estimates are `$$\begin{align} \hat{P}(Y \le j | A = 1, W = w) &amp;= \mbox{logit}^{-1}(\hat{\alpha_j} + \hat{\beta_1} + \hat{\beta_2} W) \\ \hat{P}(Y \le j | A = 0, W = w) &amp;= \mbox{logit}^{-1}(\hat{\alpha_j}  + \hat{\beta_2} W)\end{align}$$`
+The implied treatment-specific conditional distribution estimates are `$$\begin{align} \hat{P}(Y \le j \ | \ A = 1, W = w) &amp;= \mbox{logit}^{-1}(\hat{\alpha_j} + \hat{\beta_1} + \hat{\beta_2} W) \\ \hat{P}(Y \le j \ | \ A = 0, W = w) &amp;= \mbox{logit}^{-1}(\hat{\alpha_j}  + \hat{\beta_2} W)\end{align}$$`
 
 .footnote[&lt;sup&gt;\*&lt;/sup&gt;Technical note: more efficient to *not* use maximum likelihood in this step]
 
@@ -246,10 +247,10 @@ The implied treatment-specific conditional distribution estimates are `$$\begin{
 2\. Use empirical covariate distribution to .green[marginalize the estimated treatment-specific distribution].
 
 Marginalized estimate for treatment-specific cumulative distribution:
-`$$\begin{align}\hat{F}_1(j) &amp;= \hat{E}\{\hat{P}(Y \le j | A = 1, W)\} \\ &amp;= \frac{1}{n}\sum_{i=1}^n \mbox{logit}^{-1}(\hat{\alpha_j} + \hat{\beta_1} + \hat{\beta_2} W_i)\end{align}$$`
+`$$\begin{align}\hat{F}_1(j) &amp;= \hat{E}\{\hat{P}(Y \le j \ | \ A = 1, W)\} \\ &amp;= \frac{1}{n}\sum_{i=1}^n \mbox{logit}^{-1}(\hat{\alpha_j} + \hat{\beta_1} + \hat{\beta_2} W_i)\end{align}$$`
 
 Marginalized estimate for control-specific cumulative distribution:
-`$$\begin{align} \hat{F}_0(j) &amp;= \hat{E}\{\hat{P}(Y \le j | A = 0, W)\} \\ &amp;= \frac{1}{n}\sum_{i=1}^n \mbox{logit}^{-1}(\hat{\alpha_j} + \hat{\beta_2} W_i) \end{align}$$`
+`$$\begin{align} \hat{F}_0(j) &amp;= \hat{E}\{\hat{P}(Y \le j \ | \ A = 0, W)\} \\ &amp;= \frac{1}{n}\sum_{i=1}^n \mbox{logit}^{-1}(\hat{\alpha_j} + \hat{\beta_2} W_i) \end{align}$$`
 
 ---
 
