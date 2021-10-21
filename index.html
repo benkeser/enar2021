@@ -4,7 +4,7 @@
     <title>Improving Precision and Power in Randomized Trials for COVID-19 Treatments Using Covariate Adjustment, for Binary, Ordinal, or Time to Event Outcomes</title>
     <meta charset="utf-8" />
     <meta name="author" content="David Benkeser, PhD MPH    Emory University  Department of Biostatistics and Bioinformatics " />
-    <script src="index_files/header-attrs-2.7/header-attrs.js"></script>
+    <script src="index_files/header-attrs-2.10/header-attrs.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
@@ -155,21 +155,6 @@ __Survival outcomes:__
 
 ## Estimands
 
-Some prefer __conditional treatment effects__ -- contrasts between outcome distributions in subgroups comparing treatment to control.
-
-* Generally, .red[assume treatment effect is constant] across subgroups.
-* See [discussion here](https://www.fharrell.com/post/ipp/).
-
-Reasons why we focused on __marginal estimands__:
-
-* The most common estimand in many COVID contexts (treatment trials, vaccines).
-* Easy to ignore covariates when estimating marginal estimands.
-* Model-free estimand, flexible modeling of effects with stable inference.
-
----
-
-## Estimands
-
 Because treatment is .green[randomized], marginal effects can be estimated using .green[simple estimators].
 
 * E.g., sample proportions/means, Mann-Whitney U statistic, Kaplan-Meier
@@ -180,6 +165,142 @@ Because treatment is .green[randomized], marginal effects can be estimated using
 
 We present a covariate-adjusted estimator of each estimand that leverages prognostic variables. 
 * For ordinal outcomes, novel covariate adjusted estimators.
+
+---
+
+## Examples
+
+For each estimand, we adopt the following approach:
+
+1\. Fit a .green[covariate-conditional working model] for outcome distribution.
+
+* E.g., logistic regression for binary outcomes
+* E.g., proportional odds model for ordinal outcomes
+* E.g., proportional hazards model for survival outcomes
+
+2\. Use empirical covariate distribution to .green[marginalize the estimated treatment-specific distribution].
+
+3\. Compute desired .green[summary measure] of marginalized distribution.
+
+---
+
+## Examples
+
+For example, suppose the trial enrolls `\(n\)` patients on whom we measure: 
+* `\(W\)` a single covariate;
+* `\(A = 1\)` a randomized treatment, `\(A = 0\)` a control treatment;
+* `\(Y\)` a binary outcome of interest.
+
+1\. Fit a .green[covariate-conditional working model] for outcome distribution.
+
+E.g., logistic regression model: `$$\hat{P}(Y = 1 | A = a, W = w) = \mbox{logit}^{-1}(\hat{\beta_0} + \hat{\beta_1} a + \hat{\beta_2} w) \ .$$`
+
+The implied treatment-specific conditional distribution estimates are `$$\begin{align} \hat{P}(Y = 1 | A = 1, W = w) &amp;= \mbox{logit}^{-1}(\hat{\beta_0} + \hat{\beta_1} + \hat{\beta_2} W) \\ \hat{P}(Y = 1 | A = 0, W = w) &amp;= \mbox{logit}^{-1}(\hat{\beta_0}  + \hat{\beta_2} W)\end{align}$$`
+
+---
+
+## Examples
+
+2\. Use empirical covariate distribution to .green[marginalize the estimated treatment-specific distribution].
+
+Marginalized estimate for treatment-specific distribution:
+`$$\begin{align}\hat{p}_1 &amp;= \hat{E}\{\hat{P}(Y = 1 | A = 1, W)\} \\ &amp;= \frac{1}{n}\sum_{i=1}^n \mbox{logit}^{-1}(\hat{\beta_0} + \hat{\beta_1} + \hat{\beta_2} W_i)\end{align}$$`
+
+Marginalized estimate for control-specific distribution:
+`$$\begin{align} \hat{p}_0 &amp;= \hat{E}\{\hat{P}(Y = 1 | A = 0, W)\} \\ &amp;= \frac{1}{n}\sum_{i=1}^n \mbox{logit}^{-1}(\hat{\beta_0} + \hat{\beta_2} W_i) \end{align}$$`
+
+---
+
+## Examples
+
+3\. Compute desired .green[summary measure] of marginalized distribution.
+
+* Risk difference
+`$$\widehat{\text{RD}} = \hat{p}_1 - \hat{p}_0$$`
+
+* Risk ratio
+`$$\widehat{\text{RR}} = \frac{\hat{p}_1}{\hat{p}_0}$$`
+
+* Odds ratios
+`$$\widehat{\text{OR}} = \frac{\hat{p}_1 / (1 - \hat{p}_1)}{\hat{p}_0 / (1 - \hat{p}_0)}$$`
+
+---
+
+## Examples
+
+For example, consider as before a trial that enrolls `\(n\)` patients with covariates `\(W\)` treatment `\(A\)` and 
+* `\(Y\)` an .red[ordinal] outcome of interest with `\(K\)` levels.
+
+1\. Fit&lt;sup&gt;\*&lt;/sup&gt; a .green[covariate-conditional working model] for outcome distribution.
+
+E.g., proportional odds model. For `\(j = 1, \dots, K-1\)`, `$$\hat{P}(Y \le j | A = a, W = w) = \mbox{logit}^{-1}(\hat{\alpha_j} + \hat{\beta_1} a + \hat{\beta_2} w) \ .$$`
+
+The implied treatment-specific conditional distribution estimates are `$$\begin{align} \hat{P}(Y \le j | A = 1, W = w) &amp;= \mbox{logit}^{-1}(\hat{\alpha_j} + \hat{\beta_1} + \hat{\beta_2} W) \\ \hat{P}(Y \le j | A = 0, W = w) &amp;= \mbox{logit}^{-1}(\hat{\alpha_j}  + \hat{\beta_2} W)\end{align}$$`
+
+.footnote[&lt;sup&gt;\*&lt;/sup&gt;Technical note: more efficient to *not* use maximum likelihood in this step]
+
+---
+
+## Examples
+
+2\. Use empirical covariate distribution to .green[marginalize the estimated treatment-specific distribution].
+
+Marginalized estimate for treatment-specific cumulative distribution:
+`$$\begin{align}\hat{F}_1(j) &amp;= \hat{E}\{\hat{P}(Y \le j | A = 1, W)\} \\ &amp;= \frac{1}{n}\sum_{i=1}^n \mbox{logit}^{-1}(\hat{\alpha_j} + \hat{\beta_1} + \hat{\beta_2} W_i)\end{align}$$`
+
+Marginalized estimate for control-specific cumulative distribution:
+`$$\begin{align} \hat{F}_0(j) &amp;= \hat{E}\{\hat{P}(Y \le j | A = 0, W)\} \\ &amp;= \frac{1}{n}\sum_{i=1}^n \mbox{logit}^{-1}(\hat{\alpha_j} + \hat{\beta_2} W_i) \end{align}$$`
+
+---
+
+## Examples
+
+3\. Compute desired .green[summary measure] of marginalized distribution.
+
+Let `\(\hat{f}_a(j) = \hat{F}_a(j) - \hat{F}_a(j-1)\)` be the estimate of the marginalized density.
+
+.pull-left[
+* Log-odds ratios
+`$$\widehat{\text{LOR}} = \sum_{j=1}^{K-1} \mbox{log}\left[\frac{\hat{F}_1(j)/\{1 - \hat{F}_1(j)\}}{\hat{F}_0(j)/\{1 - \hat{F}_0(j)\}} \right]$$`
+
+* Mann Whitney estimand:
+`$$\widehat{\text{MW}} = \sum_{j=1}^K \left\{\hat{F}_0(j-1) + \frac{1}{2} \hat{f}_0(j) \right\}\hat{f}_1(j)$$`
+]
+
+.pull-right[
+* Difference in means
+`$$\widehat{\text{DIM}} = \sum_{j=1}^K j \ \{ \hat{f}_1(j) - \hat{f}_0(j) \}$$`
+]
+
+---
+
+## Notes on examples
+
+The previous examples are .red[overly simplistic]. In practice, we may want to:
+
+* include __more covariates__;
+* include treatment X covariate __interactions__;
+* fit __separate working models__ in each treatment group;
+* use __alternative estimators__ of conditional distributions.
+
+The estimators are .green[robust to misspecification] of the working model.
+
+* BUT, better fitting working models = greater efficiency
+
+---
+
+## Estimands
+
+Some prefer __conditional treatment effects__ -- contrasts between outcome distributions in subgroups comparing treatment to control.
+
+* Generally, .red[assume treatment effect is constant] across subgroups.
+* See [discussion here](https://www.fharrell.com/post/ipp/).
+
+Reasons why we focused on __marginal estimands__:
+
+* The most common estimand in many COVID contexts.
+* Easy to ignore covariates when estimating marginal estimands.
+* Model-free estimand, flexible modeling of effects with stable inference.
 
 ---
 
@@ -308,6 +429,7 @@ __Use Information Monitoring__
 * Final analysis time based on the information accrued. 
 * Precision gains from covariate adjustment translate into faster information accrual and shorter trial duration.
 * [Monoclonal antibody substudies of ACTIV-3 trial discontinued](https://www.niaid.nih.gov/news-events/statement-nih-sponsored-activ-3-clinical-trial-closes-enrollment-two-sub-studies) for futility based on severity-adjusted analysis.
+* [Tech report by Tsiatis et al.](https://arxiv.org/abs/2106.15559) - methods for interim analysis of ordinal outcomes when outcomes are censored at interim analysis.
 
 __Missing covariates__
 
